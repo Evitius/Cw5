@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using Cw5.DTOs.Requests;
 using Cw5.DTOs.Responses;
 using Cw5.Models;
+using Cw5.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cw5.Controllers
@@ -11,60 +12,23 @@ namespace Cw5.Controllers
     [ApiController]
     public class EnrollmentsController : ControllerBase
     {
+
+
+        private IStudentDbService _service;
+
+        public EnrollmentsController(IStudentDbService service)
+        {
+            _service = service;
+
+        }
+
         [HttpPost]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
 
-            if (request.FirstName == null || request.LastName == null)
-            {
-                return BadRequest("Zadanie jest niepoprawne");
-            }
-         
-            var st = new Student();
-            st.FirstName = request.FirstName;
-            //....
-            //...
-
-            
-            using(var con = new SqlConnection(""))
-            using(var com= new SqlCommand())
-            {
-               
-                    com.Connection = con;
-                    con.Open();
-                    var tran = con.BeginTransaction();
-                try
-                {
-                    //1. Czy studia istnieją?
-                    com.CommandText = "select IdStudies from studies WHERE name=@name";
-                    com.Parameters.AddWithValue("name", request.Studies);
-
-                    var dr = com.ExecuteReader();
-                    if (!dr.Read())
-                    {
-                        tran.Rollback();
-                        return BadRequest("Studia nie istnieją");
-                        //....
-                    }
-
-                    int idstudies = (int)dr["IdStudies"];
-
-                    //X. Dodanie studenta
-                    com.CommandText = "INSERT INTO Student(IndexNumber, FirstName) VALUES (@Index, @Fname)";
-                    com.Parameters.AddWithValue("index", request.IndexNumber);
-                    //...
-                    com.ExecuteNonQuery();
-                    tran.Commit();
-                }catch(SqlException exc)
-                {
-                    tran.Rollback();
-                }
-
-
-            }
-
+            _service.EnrollStudent(request);
             var response = new EnrollStudentResponse();
-            response.LastName = st.LastName;
+            //response.LastName = st.LastName;
 
 
             return Ok(response);
