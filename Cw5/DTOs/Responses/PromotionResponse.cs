@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Cw5.DTOs.Responses
 {
-    public class EnrollStudentResponse
+    public class PromotionResponse
     {
         public int IdEnrollment { get; set; }
         public int Semester { get; set; }

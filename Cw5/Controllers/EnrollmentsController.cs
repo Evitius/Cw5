@@ -25,14 +25,25 @@ namespace Cw5.Controllers
         [HttpPost]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
-
+            
             _service.EnrollStudent(request);
             var response = new EnrollStudentResponse();
             //response.LastName = st.LastName;
-
-
             return Ok(response);
 
         }
+    
+        [HttpPost("promotions")]
+        public IActionResult PromoteStudents(PromotionRequest promotionRequest)
+        {
+            _service.PromoteStudents(promotionRequest);
+            var response = new PromotionRequest();
+            return Ok(response);
+        }
     }
+
+
+
+
+
 }
