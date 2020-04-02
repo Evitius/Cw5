@@ -26,11 +26,11 @@ namespace Cw5.Controllers
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
 
-            //_service.EnrollStudent(request);
-            //var response = new EnrollStudentResponse();
+            _service.EnrollStudent(request);
+            var response = new EnrollStudentResponse();
             //response.LastName = st.LastName;
-            // return Ok(response);
-            return _service.EnrollStudent(request);
+             return Ok(response);
+     
 
         }
     

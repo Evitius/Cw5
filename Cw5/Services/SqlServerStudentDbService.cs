@@ -34,7 +34,7 @@ namespace Cw5.Services
                 {
 
                     //1. Czy studia istnieją?
-                    com.CommandText = "SELECT IdStudy AS idStudies FROM Studies WHERE Name='@name'";
+                    com.CommandText = "SELECT IdStudy AS idStudies FROM Studies WHERE Name='@name'"; //wyrzuca SqlException jeśli nie ma ' '
                     com.Parameters.AddWithValue("name", request.Studies);                   
                     var dr = com.ExecuteReader();
                     if (!dr.Read())
@@ -119,7 +119,7 @@ namespace Cw5.Services
                 try
                 {
                     com.Transaction = tran;
-                    com.CommandText = "SELECT IdStudy FROM Studies WHERE Name = " + pReq.Studies +"";                            
+                    com.CommandText = "SELECT IdStudy FROM Studies WHERE Name = '" + pReq.Studies +"'";                            
                     var dr = com.ExecuteReader();
                         
                     if (!dr.Read())
