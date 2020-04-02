@@ -29,24 +29,23 @@ namespace Cw5.Services
                 con.Open();
                 com.Connection = con;
                 var tran = con.BeginTransaction();
-
+                com.Transaction = tran;
                 try
                 {
 
                     //1. Czy studia istnieją?
-                    com.CommandText = "select IdStudy from studies WHERE name=@name";
-                    com.Parameters.AddWithValue("name", request.Studies);
-                    com.Transaction = tran;
+                    com.CommandText = "SELECT IdStudy AS idStudies FROM Studies WHERE Name='@name'";
+                    com.Parameters.AddWithValue("name", request.Studies);                   
                     var dr = com.ExecuteReader();
                     if (!dr.Read())
                     {
                         dr.Close();
                         tran.Rollback();
-                        return NotFound("Studia nie istnieją");
+                        return NotFound("Nie ma takich studiów");
 
                     }
 
-                    int idStudies = (int)dr["IdStudy"];
+                    int idStudies = (int)dr["idStudies"];
                     dr.Close();
 
                     //2. Sprawdzenie czy nie występuje konflikt indeksów                  
@@ -56,14 +55,14 @@ namespace Cw5.Services
                     {
                         dr.Close();
                         tran.Rollback();
-                        return BadRequest("Konflikt indeksów");
+                        return BadRequest("Student z takim indeksem już istnieje");
                     }
                     dr.Close();
 
                     //3. Nadanie IdEnrollment
                     int idEnrollment;
-                    com.CommandText = "SELECT IdEnrollment from Enrollment JOIN Studies ON " +
-                        "Enrollment.IdStudy= Studies.IdStudy WHERE Semester = 1 and IdStudy =" + idStudies;
+                    com.CommandText = "SELECT IdEnrollment FROM Enrollment JOIN Studies ON " +
+                        "Enrollment.IdStudy = Studies.IdStudy WHERE Semester = 1 and IdStudy = " + idStudies;
                     dr = com.ExecuteReader();
                     if (dr.Read())
                     {
@@ -79,12 +78,12 @@ namespace Cw5.Services
                         dr.Close();                      
                     }
 
-                    DateTime date = DateTime.Now.Date;
-                    string dateAsString = date.Day + "." + date.Month + "." + date.Year;
-
-                    //4. Wstawienie Enrollment
-                    com.CommandText = "INSERT INTO Enrollment VALUES(" + idEnrollment + ", 1, " + idStudies + ", '" + dateAsString + "')";
+                    //4. Wstawienie Enrollment                 
+                    com.CommandText = "INSERT INTO Enrollment(IdEnrollment,Semester,IdStudy,StartDate)" +
+                        "  VALUES(" + idEnrollment + ", 1, " + idStudies + ",GetDate())";
                     com.ExecuteNonQuery();
+
+                 
 
                     //5. Wstawienie studenta
                     com.CommandText = "INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment) " +
@@ -94,7 +93,7 @@ namespace Cw5.Services
                     esr.IdEnrollment = idEnrollment;
                     esr.IdStudy = idStudies;
                     esr.Semester = 1;
-                    esr.StartDate = date;
+                    esr.StartDate = DateTime.Now;
                     tran.Commit();
                     return StatusCode((int)HttpStatusCode.Created, esr);
                 }
@@ -120,7 +119,7 @@ namespace Cw5.Services
                 try
                 {
                     com.Transaction = tran;
-                    com.CommandText = "SELECT * FROM Studies WHERE Name = " + pReq.Studies +"";                            
+                    com.CommandText = "SELECT IdStudy FROM Studies WHERE Name = " + pReq.Studies +"";                            
                     var dr = com.ExecuteReader();
                         
                     if (!dr.Read())
