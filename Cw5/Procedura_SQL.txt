@@ -1,0 +1,25 @@
+CREATE PROCEDURE PromoteStudents @Studies NVARCHAR(100), @Semester INT
+AS 
+BEGIN
+SET XACT_ABORT ON;
+BEGIN TRAN
+
+DECLARE @IdStudies INT = (SELECT IdStudy FROM Studies WHERE Name= @Studies);
+IF @IdStudies IS NULL
+BEGIN
+RAISERROR (15600,-1,-1, 'error error'); 
+RETURN;
+END
+
+DECLARE @oldIdEnrollment INT = (SELECT IdEnrollment FROM Enrollment WHERE IdStudy = @idStudies AND Semester = @semester);
+DECLARE @IdEnrollment INT=  (SELECT IdEnrollment FROM Enrollment WHERE IdStudy = @IdStudies AND Semester = @semester+1);
+IF @idEnrollment IS NULL
+			BEGIN
+				SELECT @idEnrollment = (Max(IdEnrollment)+1) FROM Enrollment;
+				INSERT INTO Enrollment VALUES(@idEnrollment,@semester+1,@idStudies,GETDATE());
+			END
+UPDATE Student SET
+IdEnrollment= @IdEnrollment
+WHERE IdEnrollment=@oldIdEnrollment;
+END
+
