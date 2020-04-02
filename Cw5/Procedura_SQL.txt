@@ -1,8 +1,8 @@
 CREATE PROCEDURE PromoteStudents @Studies NVARCHAR(100), @Semester INT
 AS 
 BEGIN
-SET XACT_ABORT ON;
-BEGIN TRAN
+--SET XACT_ABORT ON;
+--BEGIN TRAN
 
 DECLARE @IdStudies INT = (SELECT IdStudy FROM Studies WHERE Name= @Studies);
 DECLARE @oldIdEnrollment INT = (SELECT IdEnrollment FROM Enrollment WHERE IdStudy = @idStudies AND Semester = @semester);
