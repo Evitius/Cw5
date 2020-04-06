@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data.SqlClient;
 using Cw5.DTOs.Requests;
 using Cw5.DTOs.Responses;
@@ -26,10 +26,8 @@ namespace Cw5.Controllers
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
 
-            _service.EnrollStudent(request);
-            var response = new EnrollStudentResponse();
-            //response.LastName = st.LastName;
-             return Ok(response);
+            var response = _service.EnrollStudent(request);
+            return Ok(response);
      
 
         }
@@ -37,14 +35,8 @@ namespace Cw5.Controllers
         [HttpPost("promotions")]
         public IActionResult PromoteStudents(PromotionRequest promotionRequest)
         {
-            _service.PromoteStudents(promotionRequest);
-            var response = new PromotionRequest();
+            
+            var response = _service.PromoteStudents(promotionRequest);
             return Ok(response);
         }
     }
-
-
-
-
-
-}
