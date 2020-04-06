@@ -9,7 +9,7 @@ namespace Cw5.DTOs.Requests
     public class EnrollStudentRequest
     {
         [Required(ErrorMessage = "Musisz podać index")]
-        [RegularExpression("^s[0-9]+$")]
+        //[RegularExpression("^s[0-9]+$")]
         public string IndexNumber { get; set; }
         [Required(ErrorMessage ="Musisz podać imię")]
         [MaxLength(100)]
