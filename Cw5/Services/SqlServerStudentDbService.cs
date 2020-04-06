@@ -12,7 +12,7 @@ using Cw5.DTOs.Responses;
 
 namespace Cw5.Services
 {
-    public class SqlServerStudentDbService : Controller, IStudentDbService
+    public class SqlServerStudentDbService : Controller,IStudentDbService
     {
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
@@ -27,14 +27,14 @@ namespace Cw5.Services
             using (var com = new SqlCommand())
             {
                 con.Open();
-                com.Connection = con;
                 var tran = con.BeginTransaction();
+                com.Connection = con;
                 com.Transaction = tran;
                 try
                 {
 
                     //1. Czy studia istnieją?
-                    com.CommandText = "SELECT IdStudy AS idStudies FROM Studies WHERE Name='@name'"; //wyrzuca SqlException jeśli nie ma ' '
+                    com.CommandText = "SELECT IdStudy AS idStudies FROM Studies WHERE Name=@name"; 
                     com.Parameters.AddWithValue("name", request.Studies);                   
                     var dr = com.ExecuteReader();
                     if (!dr.Read())
@@ -49,7 +49,7 @@ namespace Cw5.Services
                     dr.Close();
 
                     //2. Sprawdzenie czy nie występuje konflikt indeksów                  
-                    com.CommandText = "SELECT IndexNumber FROM Student WHERE IndexNumber = '" + request.IndexNumber + "'";
+                    com.CommandText = "SELECT IndexNumber FROM Student WHERE IndexNumber = " + request.IndexNumber; // ' '
                     dr = com.ExecuteReader();
                     if (dr.Read())
                     {
@@ -95,12 +95,14 @@ namespace Cw5.Services
                     esr.Semester = 1;
                     esr.StartDate = DateTime.Now;
                     tran.Commit();
+                    tran.Dispose();
                     return StatusCode((int)HttpStatusCode.Created, esr);
+                    
                 }
                 catch (SqlException exc)
                 {                   
                     tran.Rollback();
-                    throw exc;
+                    return BadRequest(exc.Message);
                 }
             }     
         }
@@ -174,12 +176,13 @@ namespace Cw5.Services
                     promoResp.IdStudy = idStudies;
                     dr.Close();
                     tran.Commit();
+                    tran.Dispose();
                     return StatusCode((int)HttpStatusCode.Created, promoResp);
                 }                    
-                catch (SqlException ex)
+                catch (SqlException exc)
                 {
                     tran.Rollback();
-                    throw ex;                   
+                    return BadRequest(exc.Message);
                 }
                 
             }
