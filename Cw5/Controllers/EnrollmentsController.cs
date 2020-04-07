@@ -28,15 +28,16 @@ namespace Cw5.Controllers
 
             var response = _service.EnrollStudent(request);
             return Ok(response);
-     
+
 
         }
-    
+
         [HttpPost("promotions")]
         public IActionResult PromoteStudents(PromotionRequest promotionRequest)
         {
-            
+
             var response = _service.PromoteStudents(promotionRequest);
             return Ok(response);
         }
     }
+}

@@ -1,0 +1,22 @@
+﻿GET /api/enrollments  
+GET /favicon.ico  
+POST /api/enrollments {
+	
+"IndexNumber": "s18999",
+"FirstName" : "Stefan",
+"LastName" : "Gonatas",
+"BirthDate" : "2004-07-03",
+"Studies": "IT"
+
+
+}  
+POST /api/enrollments {
+	
+"IndexNumber": "s15608",
+"FirstName" : "Marian",
+"LastName" : "Suda",
+"BirthDate" : "2001-11-06",
+"Studies": "IT"
+
+
+}  

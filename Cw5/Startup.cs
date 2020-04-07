@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using WebApplication2.Middlewares;
 
 namespace Cw5
 {
@@ -41,31 +42,33 @@ namespace Cw5
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseMiddleware<>
+            app.UseMiddleware<LoggingMiddleware>();
 
-           // app.Use(async(context,next) =>
-          //  {
-            //    if (!context.Request.Headers.ContainsKey("Index"))
-            //    {
-             //       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-             //       await context.Response.WriteAsync("Nie podano indeksu");
-             //       return;
-             //   }
+            app.Use(async(context,next) =>
+            {
+                if (!context.Request.Headers.ContainsKey("IndexNumber"))
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync("Nie podano indeksu");
+                    return;
+                }
 
-               // var bodyStream = string.Empty;
-               // using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 1024, true))
-              //  {
-              //      bodyStream = await reader.ReadToEndAsync();
-              //  }
+                var bodyStream = string.Empty;
+                using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 1024, true))
+                {
+                    bodyStream = await reader.ReadToEndAsync();
+                }
 
                 //³¹czenie z baz¹ danych
-                // if(!dbService.CheckIndex(index))
-                //{
-
-                //}
-                //var index = context.Response.WriteAsync("Nie podano");
-               // await next();
-           // });
+                string index = context.Request.Headers["IndexNumber"].ToString();
+                if (!dbService.CheckIndexNumber(index))
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync("osoba o podanym indeksie nie istnieje");
+                    return;
+                }
+                await next();
+            });
             app.UseRouting();
 
             app.UseAuthorization();
