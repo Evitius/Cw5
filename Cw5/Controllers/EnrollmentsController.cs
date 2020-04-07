@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data.SqlClient;
 using Cw5.DTOs.Requests;
 using Cw5.DTOs.Responses;
@@ -40,9 +40,3 @@ namespace Cw5.Controllers
             return Ok(response);
         }
     }
-
-
-
-
-
-}
