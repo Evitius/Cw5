@@ -14,6 +14,7 @@ namespace Cw5.Services
         public bool CheckIndexNumber(string index) {
             return index == null ? false : true;
         }
+        public bool CheckCredentials(LoginRequestDto request);
 
     }
 }

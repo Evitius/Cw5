@@ -185,12 +185,33 @@ namespace Cw5.Services
                     return BadRequest(exc.Message);
                 }
                 
-            }
-            
+            }           
         }
-        
-    }
 
-      
-   
+
+        public bool CheckCredentials(LoginRequestDto logreq)
+        {
+            using (var connection = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18803;Integrated Security=True"))
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+                
+                command.CommandText = "select count(1) from Student where IndexNumber = @login and Password = @haslo";
+                command.Parameters.AddWithValue("login", logreq.Login);
+                command.Parameters.AddWithValue("haslo", logreq.Haslo);
+                
+                var dr = command.ExecuteReader();
+                dr.Read();
+                int count = (int)dr.GetValue(0);
+                dr.Close();
+                
+                if (count > 0)
+                    return true;
+               
+                return false;
+            }
+        }
+
+    }
 }
