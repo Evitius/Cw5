@@ -54,22 +54,26 @@ namespace Cw5.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("login")]
         public IActionResult Login(LoginRequestDto request) 
         {
+
+            if (!_service.CheckCredentials(request))
+            {
+                return Unauthorized();
+            }
+
             var claims = new[]
            {
-                new Claim(ClaimTypes.NameIdentifier, "1"),
-                new Claim(ClaimTypes.Name, "jan123"),
-                new Claim(ClaimTypes.Role, "admin"),
-                new Claim(ClaimTypes.Role, "student")
+                new Claim(ClaimTypes.Name, request.Login),
+                new Claim(ClaimTypes.Role, "employee")
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken
                 (
-                issuer: "Gakko",
+                issuer: "s18803",
                 audience: "Students",
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(10),
