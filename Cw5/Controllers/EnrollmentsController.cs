@@ -55,6 +55,7 @@ namespace Cw5.Controllers
 
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public IActionResult Login(LoginRequestDto request) 
         {
 
@@ -62,6 +63,7 @@ namespace Cw5.Controllers
             {
                 return Unauthorized();
             }
+          
 
             var claims = new[]
            {
@@ -89,6 +91,54 @@ namespace Cw5.Controllers
             }
                 );
         }
+    
+    
+    
+        [HttpPost("refresh-token/{token}")]
+        public IActionResult RefreshToken(string refToken)
+        {
+            string login = _service.CheckRefreshToken(refToken);
+            if (login == "")
+            {
+                return Unauthorized();
+            }
+
+            return Ok(NewToken(login));
+        }
+
+        public Object NewToken(string login)
+        {
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name,login),
+                new Claim(ClaimTypes.Role,"student")
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "s18803",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: creds
+                );
+
+            var refToken = Guid.NewGuid();
+
+
+            return new
+            {
+                accesstoken = new JwtSecurityTokenHandler().WriteToken(token),
+                refreshToken = Guid.NewGuid()//
+            };
+
+        }
+
+
     }
-    //poprawka
+    
+
 }

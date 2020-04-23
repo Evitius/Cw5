@@ -16,6 +16,9 @@ namespace Cw5.Services
             return index == null ? false : true;
         }
         public bool CheckCredentials(LoginRequestDto request);
+        public string CheckRefreshToken(string refreshToken);
+        public void UpdateRefreshToken(Guid refreshToken, string login);
+
 
     }
 }

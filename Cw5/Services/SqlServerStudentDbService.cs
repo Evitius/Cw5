@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using Cw5.DTOs.Responses;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace Cw5.Services
 {
@@ -196,12 +199,24 @@ namespace Cw5.Services
             {
                 connection.Open();
                 command.Connection = connection;
-                
-                command.CommandText = "select count(1) from Student where IndexNumber = @login and Password = @haslo";
+
+       
+                command.CommandText = "SELECT Salt FROM Student WHERE IndexNumber = @login";
                 command.Parameters.AddWithValue("login", logreq.Login);
-                command.Parameters.AddWithValue("haslo", logreq.Haslo);
+           
                 
                 var dr = command.ExecuteReader();
+                dr.Read();
+                var salt = dr["Salt"].ToString();
+                dr.Close();
+
+                var hash = CreateHash(logreq.Haslo, salt);
+
+                command.Connection = connection;
+                command.CommandText = "SELECT count(1) FROM Student WHERE IndexNumber = @index AND Haslo = @haslo";
+                command.Parameters.AddWithValue("login", logreq.Login);
+                command.Parameters.AddWithValue("haslo", hash);
+                dr = command.ExecuteReader();
                 dr.Read();
                 int count = (int)dr.GetValue(0);
                 dr.Close();
@@ -210,6 +225,63 @@ namespace Cw5.Services
                     return true;
                
                 return false;
+            }
+        }
+
+        public string CheckRefreshToken(string refreshToken)
+        {
+            using (var connection = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18803;Integrated Security=True"))
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+                
+                command.CommandText = "SELECT IndexNumber FROM Student WHERE RefreshToken = @refToken";
+                command.Parameters.AddWithValue("refToken", refreshToken);
+                var dr = command.ExecuteReader();
+                dr.Read();
+                string login = dr["IndexNumber"].ToString();
+                dr.Close();
+                
+                return login;
+            }
+        }
+
+        public void UpdateRefreshToken(Guid refreshToken, string login)
+        {
+            using (var connection = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18803;Integrated Security=True"))
+            using (var command = new SqlCommand())
+            {
+                connection.Open();
+                command.Connection = connection;
+                
+                command.CommandText = "UPDATE Student SET RefreshToken = @refToken WHERE IndexNumber = @login";
+                command.Parameters.AddWithValue("refToken", refreshToken);
+                command.Parameters.AddWithValue("login", login);
+                
+                var dr = command.ExecuteNonQuery();
+            }
+        }
+
+        private string CreateHash(string haslo, string salt)
+        {
+            var valueBytes = KeyDerivation.Pbkdf2(
+                                    password: haslo,
+                                    salt: Encoding.UTF8.GetBytes(salt),
+                                    prf: KeyDerivationPrf.HMACSHA512,
+                                    iterationCount: 10000,
+                                    numBytesRequested: 256 / 8);
+
+            return Convert.ToBase64String(valueBytes);
+        }
+
+        private string CreateSalt()
+        {
+            byte[] randomBytes = new byte[128 / 8];
+            using (var randomNumber = RandomNumberGenerator.Create())
+            {
+                randomNumber.GetBytes(randomBytes);
+                return Convert.ToBase64String(randomBytes);
             }
         }
 
