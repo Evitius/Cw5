@@ -11,6 +11,7 @@ namespace Cw5.Services
     {
         public IActionResult EnrollStudent(EnrollStudentRequest request);
         public IActionResult PromoteStudents(PromotionRequest promotionRequest);
+        
         public bool CheckIndexNumber(string index) {
             return index == null ? false : true;
         }
