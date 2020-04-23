@@ -190,8 +190,6 @@ namespace Cw5.Services
                 
             }           
         }
-
-
         public bool CheckCredentials(LoginRequestDto logreq)
         {
             using (var connection = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18803;Integrated Security=True"))
@@ -200,11 +198,11 @@ namespace Cw5.Services
                 connection.Open();
                 command.Connection = connection;
 
-       
+
                 command.CommandText = "SELECT Salt FROM Student WHERE IndexNumber = @login";
                 command.Parameters.AddWithValue("login", logreq.Login);
-           
-                
+
+
                 var dr = command.ExecuteReader();
                 dr.Read();
                 var salt = dr["Salt"].ToString();
@@ -213,17 +211,17 @@ namespace Cw5.Services
                 var hash = CreateHash(logreq.Haslo, salt);
 
                 command.Connection = connection;
-                command.CommandText = "SELECT count(1) FROM Student WHERE IndexNumber = @index AND Haslo = @haslo";
+                command.CommandText = "SELECT count(1) FROM Student WHERE IndexNumber = @login AND Haslo = @haslo";
                 command.Parameters.AddWithValue("login", logreq.Login);
                 command.Parameters.AddWithValue("haslo", hash);
                 dr = command.ExecuteReader();
                 dr.Read();
                 int count = (int)dr.GetValue(0);
                 dr.Close();
-                
+
                 if (count > 0)
                     return true;
-               
+
                 return false;
             }
         }
@@ -235,14 +233,14 @@ namespace Cw5.Services
             {
                 connection.Open();
                 command.Connection = connection;
-                
+
                 command.CommandText = "SELECT IndexNumber FROM Student WHERE RefreshToken = @refToken";
                 command.Parameters.AddWithValue("refToken", refreshToken);
                 var dr = command.ExecuteReader();
                 dr.Read();
                 string login = dr["IndexNumber"].ToString();
                 dr.Close();
-                
+
                 return login;
             }
         }
@@ -254,11 +252,11 @@ namespace Cw5.Services
             {
                 connection.Open();
                 command.Connection = connection;
-                
+
                 command.CommandText = "UPDATE Student SET RefreshToken = @refToken WHERE IndexNumber = @login";
                 command.Parameters.AddWithValue("refToken", refreshToken);
                 command.Parameters.AddWithValue("login", login);
-                
+
                 var dr = command.ExecuteNonQuery();
             }
         }

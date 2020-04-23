@@ -22,3 +22,7 @@ POST /api/enrollments {
 }  
 GET /api/enrollments  
 GET /favicon.ico  
+GET /api/enrollments  
+GET /favicon.ico  
+GET /api/enrollments  
+GET /favicon.ico  
