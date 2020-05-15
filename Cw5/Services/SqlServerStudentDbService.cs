@@ -17,8 +17,15 @@ namespace Cw5.Services
 {
     public class SqlServerStudentDbService : Controller,IStudentDbService
     {
-        public IActionResult EnrollStudent(EnrollStudentRequest request)
+
+        private readonly s18803Context context;
+
+        public SqlServerStudentDbService(s18803Context context)
         {
+            this.context = context;
+        }
+        public IActionResult EnrollStudent(EnrollStudentRequest request)
+        {           
 
             EnrollStudentResponse esr = new EnrollStudentResponse() { };
             

@@ -14,9 +14,10 @@ namespace Cw5.Models
     
         public string BirthDate { get; set; }
      
-        public string Studies { get; set; }
-      
-        
+        public int IdEnrollment { get; set; }
+
+        public virtual Enrollment IdEnrollmentNavigation { get; set; }
+       
         //prob + tabtab
 
     }

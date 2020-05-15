@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 namespace Cw5
 {
     public class Program
+
+    //Scaffold-DbContext 'Data source=db-mssql;Initial Catalog=s18803;Integrated Security=True' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
     {
         public static void Main(string[] args)
         {
